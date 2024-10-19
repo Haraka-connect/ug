@@ -395,63 +395,113 @@
 
 
 
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+
+
+<h2>Create Your Account</h2>
+<form id="signup-form" onsubmit="submitSignupForm(event)">
+    <label for="firstname">First Name <span class="required">*</span></label>
+    <input type="text" id="firstname" name="firstname" placeholder="Enter your first name" required>
+
+    <label for="lastname">Last Name <span class="required">*</span></label>
+    <input type="text" id="lastname" name="lastname" placeholder="Enter your last name" required>
+
+    <label for="email">Email <span class="required">*</span></label>
+    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+    <label for="phone">Phone Number <span class="required">*</span></label>
+    <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+
+    <label for="password">Password <span class="required">*</span></label>
+    <input type="password" id="password" name="password" placeholder="Enter a password" required minlength="8">
+
+    <label for="confirm_password">Confirm Password <span class="required">*</span></label>
+    <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required minlength="8">
+
+    <label for="service">Select Your Preferred Service <span class="required">*</span></label>
+    <select id="service" name="service" required>
+        <option value="">--Select a Service--</option>
+        <option value="Soap Making Training">Soap Making Training</option>
+        <option value="Plumbing">Plumbing Services</option>
+        <option value="Electrical Services">Electrical Services</option>
+        <option value="Carpentry">Carpentry and Woodwork</option>
+        <option value="Gardening">Gardening & Landscaping</option>
+        <option value="Cleaning">Home Cleaning Services</option>
+    </select>
+
+    <label>
+        <input type="checkbox" name="terms" id="terms" required> I agree to the <a href="#">Terms and Conditions</a> <span class="required">*</span>
+    </label>
+
+    <button type="submit" class="submit-btn">Sign Up</button>
+</form>
+
+<!-- Firebase setup -->
+<script>
+  // Initialize Firebase
+  const firebaseConfig = {
+    apiKey: "your-api-key",
+    authDomain: "your-auth-domain",
+    projectId: "your-project-id",
+    storageBucket: "your-storage-bucket",
+    messagingSenderId: "your-messaging-sender-id",
+    appId: "your-app-id"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  function submitSignupForm(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const firstname = document.getElementById('firstname').value;
+    const lastname = document.getElementById('lastname').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    const service = document.getElementById('service').value;
+
+    if (password !== confirmPassword) {
+      alert('Passwords do not match!');
+      return;
+    }
+
+    // Firebase Authentication: Create user
+    auth.createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+
+        // Store additional user data in Firestore
+        return db.collection('users').doc(user.uid).set({
+          firstname: firstname,
+          lastname: lastname,
+          email: email,
+          phone: phone,
+          service: service,
+          uid: user.uid
+        });
+      })
+      .then(() => {
+        alert('Account created successfully!');
+        // Redirect or clear form after success
+      })
+      .catch((error) => {
+        console.error('Error signing up:', error);
+        alert('Error signing up: ' + error.message);
+      });
+  }
+</script>
 
 
 
     
-      <h1 id="signup">Create an Account </h1>
-<section class="container" id="signup-form">
-    <h2>Create Your Account</h2>
-    <form action="/signup" method="POST" onsubmit="return validateSignupForm()">
-        <label for="firstname">First Name <span class="required">*</span></label>
-        <input type="text" id="firstname" name="firstname" placeholder="Enter your first name" required>
-
-        <label for="lastname">Last Name <span class="required">*</span></label>
-        <input type="text" id="lastname" name="lastname" placeholder="Enter your last name" required>
-
-        <label for="email">Email <span class="required">*</span></label>
-        <input type="email" id="email" name="email" placeholder="Enter your email" required>
-
-        <label for="phone">Phone Number <span class="required">*</span></label>
-        <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
-
-        <label for="password">Password <span class="required">*</span></label>
-        <input type="password" id="password" name="password" placeholder="Enter a password" required minlength="8">
-
-        <label for="confirm_password">Confirm Password <span class="required">*</span></label>
-        <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required minlength="8">
-
-        <label for="service">Select Your Preferred Service <span class="required">*</span></label>
-        <select id="service" name="service" required>
-            <option value="">--Select a Service--</option>
-            <option value="Soap Making Training">Soap Making Training</option>
-            <option value="Plumbing">Plumbing Services</option>
-            <option value="Electrical Services">Electrical Services</option>
-            <option value="Carpentry">Carpentry and Woodwork</option>
-            <option value="Gardening">Gardening & Landscaping</option>
-            <option value="Cleaning">Home Cleaning Services</option>
-        </select>
-
-        <label>
-            <input type="checkbox" name="terms" id="terms" required> I agree to the <a href="#">Terms and Conditions</a> <span class="required">*</span>
-        </label>
-
-      
-    <button type="submit" class="submit-btn">Sign Up</button>
-</form>
-
-
-    <div class="toggle-form">
-        Already have an account? <a onclick="showLoginForm()">Log in here</a>
-    </div>
-</section>
-
-<!-- Login Form -->
-
-   <!-- Login Form -->
 <section class="container login-form" id="login-form">
     <h2>Log in to Your Account</h2>
-    <form action="/login" method="POST" onsubmit="return validateLoginForm()">
+    <form id="login-form" onsubmit="submitLoginForm(event)">
         <label for="login-email">Email <span class="required">*</span></label>
         <input type="email" id="login-email" name="login-email" placeholder="Enter your email" required>
 
@@ -465,37 +515,33 @@
         Don't have an account? 
         <a onclick="showSignupForm()">Sign up here</a>
     </div>
-
-
 </section>
- <h1 id="myaccount">My Account</h1>
-<div id="account" class="container">
-    <!-- Profile Information Section -->
-    <div class="section">
-        <h2>Profile Information</h2>
-        <p>Username: <strong id="username">John Doe</strong></p>
-        <p>Email: <strong id="email">john.doe@example.com</strong></p>
-        <p>Phone: <strong id="phone">+123456789</strong></p>
-        <p>Shipping Address: <strong id="address">123 Main St, City, Country</strong></p>
-    </div>
 
-    <!-- Account Management Section -->
-    <div class="section">
-        <h2>Account Management</h2>
-        <p>Change password, manage addresses, and view order history.</p>
-    </div>
+<script>
+  function submitLoginForm(event) {
+    event.preventDefault(); // Prevent default form submission
 
-    <!-- Order History and Wishlist Section -->
-    <div class="section">
-        <h2>Order History & Wishlist</h2>
-        <p>View your past orders, track current orders, and manage your wishlist.</p>
-    </div>
-</div>
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
 
-<div id="login-message" class="login-message">
-    <p>You are not logged in. Please log in or create an account to access your profile.</p>
-    <a href="f.html" class="login-btn">Login / Create Account</a>
-</div>
+    auth.signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        alert('Logged in successfully!');
+        // Redirect to account page or load account details
+      })
+      .catch((error) => {
+        console.error('Error logging in:', error);
+        alert('Error logging in: ' + error.message);
+      });
+  }
+</script>
+
+
+
+
+
+    
     <br>
     <br>
     <h1 id="faqs">FAQs</h1>
